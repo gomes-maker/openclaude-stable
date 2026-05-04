@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OpenClaudeApp · Pense em voz alta</title>
+<meta name="description" content="Claude com janela nativa pra macOS. Multi-LLM, 100% local, Liquid Glass.">
+<meta name="theme-color" content="#0c0c0e">
+
+<!-- Open Graph (preview WhatsApp/Slack/iMessage) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="OpenClaudeApp">
+<meta property="og:description" content="Claude com janela nativa pra macOS. Multi-LLM, 100% local, Liquid Glass.">
+<meta property="og:url" content="https://gomes-maker.github.io/openclaude-stable/">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&amp;family=Instrument+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0c0c0e;
+  --bg-alt: #14141a;
+  --text: #f4efe1;
+  --text-dim: rgba(244, 239, 225, 0.65);
+  --text-muted: rgba(244, 239, 225, 0.40);
+  --accent: #d8a76b;
+  --accent-soft: rgba(216, 167, 107, 0.18);
+  --rule: rgba(244, 239, 225, 0.14);
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  font-feature-settings: "ss01", "ss02";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* Header thin */
+.topbar {
+  border-bottom: 1px solid var(--rule);
+  padding: 18px 0;
+}
+.topbar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.topbar a { color: var(--text-dim); text-decoration: none; }
+.topbar a:hover { color: var(--accent); }
+.brand { color: var(--text); font-weight: 500; }
+
+/* Hero */
+.hero {
+  padding: 96px 0 64px;
+}
+.hero h1 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(56px, 9vw, 112px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+}
+.hero h1 .roman {
+  font-style: normal;
+  color: var(--accent);
+}
+.hero .tagline {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+  font-variation-settings: "opsz" 80;
+}
+.hero .lead {
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--text-dim);
+  max-width: 560px;
+  margin-bottom: 48px;
+}
+.hero .lead strong { color: var(--text); font-weight: 500; }
+
+/* CTA */
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 32px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.3), 0 0 0 0 var(--accent-soft);
+}
+.cta:hover {
+  transform: translateY(-1px);
+  background: #e2b277;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.3), 0 0 0 6px var(--accent-soft);
+}
+.cta:active { transform: translateY(0); }
+.cta-arrow {
+  display: inline-block;
+  font-size: 18px;
+  transform: translateY(0);
+  transition: transform 0.15s ease;
+}
+.cta:hover .cta-arrow { transform: translateY(2px); }
+
+.cta-meta {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+.cta-meta .sep { color: var(--rule); margin: 0 8px; }
+
+/* Sections */
+section {
+  padding: 64px 0;
+  border-top: 1px solid var(--rule);
+}
+.section-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+.section-label::before { content: '— '; }
+
+/* Install steps */
+.steps {
+  display: grid;
+  gap: 20px;
+}
+.step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 20px;
+  align-items: baseline;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--rule);
+}
+.step:last-child { border-bottom: none; }
+.step-num {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 32px;
+  color: var(--accent);
+  line-height: 1;
+}
+.step-text {
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+.step-text strong { color: var(--text); font-weight: 500; }
+.step-text code {
+  font-family: var(--mono);
+  font-size: 13px;
+  background: var(--bg-alt);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+/* Features grid */
+.features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+.feature {
+  background: var(--bg);
+  padding: 32px 28px;
+}
+.feature h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-variation-settings: "opsz" 80;
+}
+.feature p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+/* Requirements */
+.req {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.req .key { color: var(--text-muted); margin-right: 8px; }
+.req .val { color: var(--text); }
+
+/* Footer */
+footer {
+  padding: 48px 0 64px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+footer a { color: var(--text-dim); text-decoration: none; }
+footer a:hover { color: var(--accent); }
+.footer-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .container { padding: 0 20px; }
+  .hero { padding: 56px 0 40px; }
+  .hero .lead { font-size: 17px; }
+  .cta { padding: 16px 24px; font-size: 15px; }
+  section { padding: 48px 0; }
+  .features { grid-template-columns: 1fr; }
+  .step { grid-template-columns: 40px 1fr; gap: 16px; }
+  .step-num { font-size: 24px; }
+  .step-text { font-size: 15px; }
+  .footer-row { flex-direction: column; gap: 8px; }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <span class="brand">xNeog</span>
+    <span>v1.0 · 2026-05-04</span>
+  </div>
+</header>
+
+<main class="container">
+
+  <section class="hero" style="border: none; padding-top: 96px;">
+    <h1><span class="roman">Open</span>Claude<span class="roman">App</span></h1>
+    <div class="tagline">Pense em voz alta.</div>
+    <p class="lead">
+      Claude com <strong>janela nativa pra macOS</strong>. Multi-LLM, 100% local, Liquid Glass.
+      Sem instalar Node, sem terminal — abriu, configurou, conversa.
+    </p>
+
+    <div class="cta-row">
+      <a class="cta" href="https://github.com/gomes-maker/openclaude-stable/releases/download/v1.0/OpenClaudeApp-v1.0.dmg">
+        <span class="cta-arrow">↓</span>
+        <span>Baixar pra macOS</span>
+      </a>
+      <div class="cta-meta">
+        108&nbsp;MB <span class="sep">·</span> macOS&nbsp;26+ <span class="sep">·</span> Apple&nbsp;Silicon <span class="sep">·</span> v1.0
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">Instalação</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-text">
+          <strong>Abra o .dmg</strong> e arraste o OpenClaudeApp pra pasta <code>Applications</code>.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-text">
+          <strong>Primeira vez:</strong> em Applications, clique com <strong>botão direito</strong> no app → <code>Open</code> → confirme <code>Open</code> no diálogo.
+          Depois abre normal pelo Launchpad.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-text">
+          <strong>Configure</strong> seu provider de IA no setup (Claude Max, GPT, Gemini, Qwen, DeepSeek). Pronto pra usar.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">Recursos</div>
+    <div class="features">
+      <div class="feature">
+        <h3>Multi-LLM</h3>
+        <p>Claude · GPT-5 · Gemini · Qwen3 · DeepSeek · Llama. Troca de modelo com ⌘M. Fallback automático via OpenRouter.</p>
+      </div>
+      <div class="feature">
+        <h3>100% Local</h3>
+        <p>Conversas só no seu Mac. API keys no Keychain do macOS. Zero telemetria, zero analytics, zero servidor nosso.</p>
+      </div>
+      <div class="feature">
+        <h3>Liquid Glass nativo</h3>
+        <p>Identidade visual macOS 26 Tahoe. Bubbles glass, palette com âmbar, transições spring. Reduce Motion respeitado.</p>
+      </div>
+      <div class="feature">
+        <h3>Self-contained</h3>
+        <p>Node + CLI bundled dentro do app. Sem <code>brew install</code>, sem <code>npm</code>, sem terminal pra preparar nada.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">Requisitos</div>
+    <div class="req">
+      <div><span class="key">macOS</span><span class="val">26 Tahoe ou superior</span></div>
+      <div><span class="key">Arch</span><span class="val">Apple Silicon (M1, M2, M3, M4)</span></div>
+      <div><span class="key">RAM</span><span class="val">8 GB</span></div>
+      <div><span class="key">Disk</span><span class="val">300 MB</span></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container footer-row">
+    <div>© 2026 xNeog · <a href="mailto:gomes.007@icloud.com">gomes.007@icloud.com</a></div>
+    <div><a href="https://github.com/gomes-maker/openclaude-stable">github.com/gomes-maker/openclaude-stable</a></div>
+  </div>
+</footer>
+
+</body>
+</html>
